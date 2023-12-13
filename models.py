@@ -8,7 +8,7 @@ class Point:
         """
         self.coordinates = coordinates
 
-    def distance_to(self, other_point):
+    def distance_to(self, other_point, distance_type="squared euclidean"):
         """
         Calculate the squared Euclidean distance between this point and another point.
 
@@ -18,7 +18,23 @@ class Point:
         Returns:
         float: Squared Euclidean distance between the points.
         """
-        return sum((a - b) ** 2 for a, b in zip(self.coordinates, other_point.coordinates))
+        distance_types = ['squared euclidean', 'manhattan', 'hamming']
+
+        if distance_type not in distance_types:
+            raise ValueError("Not a valid distance type")
+
+        if distance_type == "squared euclidean":
+            return sum((a - b) ** 2 for a, b in zip(self.coordinates, other_point.coordinates))
+
+        elif distance_type == "manhattan":
+            return sum(abs(a - b) for a, b in zip(self.coordinates, other_point.coordinates))
+
+        elif distance_type == "hamming":
+
+            if len(other_point.coordinates) != len(set(other_point)):
+                raise ValueError("Categorical coordinates must have the same length")
+
+            return sum(el1 != el2 for el1, el2 in zip(self.coordinates, other_point.coordinates))
 
     def __str__(self):
         return str(self.coordinates)

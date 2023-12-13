@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from abc import ABC, abstractmethod
 
@@ -19,7 +21,7 @@ class Model(ABC):
 class KNearestNeighbours(Model):
     """K-Nearest Neighbors classifier implementation."""
 
-    variants = ['regular', 'test']  # Class attribute for different variants
+    variants = ['regular', 'distance weight']  # Class attribute for different variants
 
     def __init__(self):
         """
@@ -50,7 +52,7 @@ class KNearestNeighbours(Model):
         self.d = len(train_x[0])
         self.root = Node(elements, 0, self.d)
 
-    def predict(self, test_x, k=3, variant="regular"):
+    def predict(self, test_x, k=3, variant="regular", distance_type="squared euclidean"):
         """
         Predict the class labels for test data using KNearestNeighbours.
 
@@ -71,7 +73,7 @@ class KNearestNeighbours(Model):
         if variant not in KNearestNeighbours.variants:
             raise ValueError("Unknown variant.")
 
-        return evaluate_all_elements(self._predict_single_instance_wrapper, test_x, (k, variant))
+        return evaluate_all_elements(self._predict_single_instance_wrapper, test_x, (k, variant, distance_type))
 
     def _predict_single_instance_wrapper(self, instance, args):
         """
@@ -83,7 +85,7 @@ class KNearestNeighbours(Model):
         """
         return self._predict_single_instance(instance, *args)
 
-    def _predict_single_instance(self, instance, k, variant):
+    def _predict_single_instance(self, instance, k, variant, distance_type):
         """
         Predict the class label for a single instance.
 
@@ -98,7 +100,7 @@ class KNearestNeighbours(Model):
         if len(instance) != self.d:
             raise ValueError("Dimensionality mismatch.")
 
-        k_nearest = find_k_nearest_neighbors(self.root, Point(instance), k, self.d)
+        k_nearest = find_k_nearest_neighbors(node=self.root, query_point=Point(instance), k=k, d=self.d, distance_type=distance_type)
 
         if variant == "regular":
 
@@ -118,5 +120,11 @@ class KNearestNeighbours(Model):
                     predicted_class = elem_class
             return predicted_class
 
-        elif variant == "test":
-            return 0
+        elif variant == "distance weight":
+            counter = {}
+            for squared_weight, elem_class in k_nearest:
+                if elem_class not in counter:
+                    counter[elem_class] = 1/math.sqrt(squared_weight)
+                else:
+                    counter[elem_class] += 1/math.sqrt(squared_weight)
+            return max(counter, key=counter.get)

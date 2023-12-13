@@ -17,6 +17,10 @@ def evaluate_all_elements(func, arr, args):
     numpy.ndarray: An array containing the results of applying the function to all elements.
     """
     num_cores = os.cpu_count()
+
+    if len(arr) < num_cores:
+        num_cores = len(arr)
+
     split_arr = np.array_split(arr, num_cores)
     args_list = [(func, batch,) + args for batch in split_arr]
 
