@@ -11,6 +11,7 @@ The `KNearestNeighbours` class implements a KNN classifier, leveraging a k-d tre
 - **KNearestNeighbours class**: Implements KNN classification.
 - **K-d tree**: Utilizes a k-d tree for efficient nearest neighbor search.
 - **Training and prediction**: Provides methods for model training and prediction.
+- **Hyperparameter tunning**: Allows searching for the most optimal k
 
 ## Installation
 
